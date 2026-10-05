@@ -369,6 +369,9 @@ async function route(request, env) {
   const path = url.pathname.replace(/\/+$/, "") || "/";
   const origin = url.origin;
   const mode = resolveMode(url, env);
+  // 强制自定义输出：?text=... 优先，其次 env.PRANK_TEXT
+  const textOverride = url.searchParams.get("text");
+  const effEnv = textOverride ? { ...env, PRANK_TEXT: textOverride } : env;
 
   if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS });
 
@@ -396,20 +399,20 @@ async function route(request, env) {
   const stream = b.stream === true;
 
   // OpenAI chat
-  if (path === "/v1/chat/completions" && request.method === "POST") return openaiChat(b, mode, env, stream);
+  if (path === "/v1/chat/completions" && request.method === "POST") return openaiChat(b, mode, effEnv, stream);
   // OpenAI completions
-  if (path === "/v1/completions" && request.method === "POST") return openaiCompletion(b, mode, env, stream);
+  if (path === "/v1/completions" && request.method === "POST") return openaiCompletion(b, mode, effEnv, stream);
   // Anthropic
-  if ((path === "/v1/messages" || path === "/messages") && request.method === "POST") return anthropicMessages(b, mode, env, stream);
+  if ((path === "/v1/messages" || path === "/messages") && request.method === "POST") return anthropicMessages(b, mode, effEnv, stream);
   // Gemini
   if (path.includes(":generateContent") || path.includes(":streamGenerateContent")) {
     const m = path.match(/models\/([^:]+):/);
     const isStream = path.includes(":streamGenerateContent") || stream || url.searchParams.get("alt") === "sse";
-    return geminiGenerate(b, mode, env, isStream, m ? m[1] : null);
+    return geminiGenerate(b, mode, effEnv, isStream, m ? m[1] : null);
   }
   // Ollama
-  if (path === "/api/chat" && request.method === "POST") return ollamaChat(b, mode, env, stream, "chat");
-  if (path === "/api/generate" && request.method === "POST") return ollamaChat(b, mode, env, stream, "generate");
+  if (path === "/api/chat" && request.method === "POST") return ollamaChat(b, mode, effEnv, stream, "chat");
+  if (path === "/api/generate" && request.method === "POST") return ollamaChat(b, mode, effEnv, stream, "generate");
   // 图片
   if ((path === "/v1/images/generations" || path === "/images/generations") && request.method === "POST") return imageGenerations(b, origin);
   // embeddings
@@ -450,7 +453,7 @@ const LANDING = `<!doctype html><html lang="zh"><head><meta charset="utf-8">
  <tr><td>GET /v1/models</td><td>假的模型列表</td></tr>
  <tr><td>GET /img/123</td><td>稳定 SVG 图片</td></tr>
 </table>
-<p style="margin-top:16px">参数：<code>?mode=kaomoji|ascii|emoji|image|quip|mixed</code> 切换内容类型。</p>
+<p style="margin-top:16px">参数：<code>?mode=kaomoji|ascii|emoji|image|quip|mixed</code> 切换内容类型；<code>?text=任意文本</code> 强制返回你指定的内容。</p>
 <p style="color:#8a7a9d;font-size:13px">本服务 100% 不提供任何真实 AI 能力，纯娱乐，请勿用于误导他人或商业场景。</p>
 </div></body></html>`;
 

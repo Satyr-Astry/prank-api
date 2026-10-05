@@ -147,8 +147,20 @@ const postJSON = (path, body) =>
     check("代码关键词触发彩蛋", /bug|TODO|颜文字/.test(j.choices[0].message.content), `-> "${j.choices[0].message.content.slice(0, 40)}..."`);
   }
 
-  // 13. 404
-  console.log("[13] 未知路径 404");
+  // 13. ?text= 自定义输出
+  console.log("[13] ?text= 强制自定义内容");
+  {
+    const r = await fetch(`${BASE}/v1/chat/completions?text=` + encodeURIComponent("主人今天也要开心哦(=^･ω･^=)"), {
+      method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ messages: [{ role: "user", content: "anything" }] }),
+    });
+    const j = await r.json();
+    const got = j.choices?.[0]?.message?.content;
+    check("?text= 生效", got === "主人今天也要开心哦(=^･ω･^=)", `-> "${got}"`);
+  }
+
+  // 14. 404
+  console.log("[14] 未知路径 404");
   {
     const r = await fetch(`${BASE}/nope`);
     check("返回 404", r.status === 404);
