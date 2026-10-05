@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="g42" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#d4fcff"/>
+      <stop offset="50%" stop-color="#e5d4ff"/>
+      <stop offset="100%" stop-color="#ffe0f0"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="48" fill="url(#g42)"/>
+  <text x="256" y="250" font-size="64" font-family="'Segoe UI','Yu Gothic',sans-serif"
+        text-anchor="middle" dominant-baseline="middle" fill="#3a2d4d">( ・ε・ )</text>
+  <text x="256" y="330" font-size="22" font-family="'Segoe UI',sans-serif"
+        text-anchor="middle" fill="#6b5b7d">思考中……思考失败，那就卖个萌吧 (=^</text>
+  <text x="256" y="470" font-size="16" font-family="monospace" text-anchor="middle"
+        fill="#9a8aad">prank-api · seed 42</text>
+</svg>

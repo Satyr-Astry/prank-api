@@ -1,0 +1,16 @@
+{
+  "name": "prank-api",
+  "version": "1.0.0",
+  "description": "一个假装是 AI 大模型供应商的多协议整蛊 API，返回颜文字/ASCII/图片",
+  "type": "module",
+  "main": "src/worker.js",
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node test.mjs",
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "keywords": ["prank", "fake-api", "openai", "anthropic", "gemini", "ollama", "kaomoji"],
+  "license": "MIT",
+  "engines": { "node": ">=18" }
+}

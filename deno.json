@@ -1,0 +1,5 @@
+{
+  "name": "prank-api",
+  "version": "1.0.0",
+  "exports": "./src/worker.js"
+}

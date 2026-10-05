@@ -1,0 +1,10 @@
+# Cloudflare Workers 部署配置
+# 需要先: npm i -g wrangler  &&  wrangler login
+name = "prank-api"
+main = "src/worker.js"
+compatibility_date = "2024-11-01"
+
+# 可选：用环境变量固定行为
+# [vars]
+# PRANK_MODE = "mixed"      # mixed | kaomoji | ascii | emoji | image | quip
+# PRANK_TEXT = "（固定输出内容）"
