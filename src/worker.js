@@ -104,6 +104,35 @@ function extractPrompt(body) {
   return "";
 }
 
+// 只取"最新一条用户消息"——彩蛋必须基于这一句判断，
+// 否则客户端把整个对话历史一起发来时，历史里出现过的关键词会永远命中同一个彩蛋。
+function extractLastUser(body) {
+  try {
+    if (!body) return "";
+    if (typeof body === "string") return body;
+    if (Array.isArray(body.messages)) {
+      for (let i = body.messages.length - 1; i >= 0; i--) {
+        const m = body.messages[i];
+        if (m && (m.role === "user" || m.role === undefined)) {
+          const c = m.content;
+          return typeof c === "string" ? c : (Array.isArray(c) ? c.map((p) => p.text || "").join(" ") : JSON.stringify(c));
+        }
+      }
+      return "";
+    }
+    if (typeof body.prompt === "string") return body.prompt;
+    if (Array.isArray(body.contents)) {
+      for (let i = body.contents.length - 1; i >= 0; i--) {
+        const t = ((body.contents[i] || {}).parts || []).map((p) => p.text || "").join(" ");
+        if (t) return t;
+      }
+      return "";
+    }
+    if (typeof body.input === "string") return body.input;
+  } catch (_) {}
+  return "";
+}
+
 async function readBody(request) {
   const ct = request.headers.get("content-type") || "";
   try {
@@ -154,7 +183,8 @@ function streamResponse(stream) {
 function openaiChat(body, mode, env, stream) {
   const model = body.model || "catgirl-4o";
   const prompt = extractPrompt(body);
-  const text = prankContent(mode, prompt, env);
+  const lastUser = extractLastUser(body);
+  const text = prankContent(mode, lastUser, env);
   const id = rid();
 
   if (!stream) {
@@ -197,7 +227,7 @@ function openaiChat(body, mode, env, stream) {
 function openaiCompletion(body, mode, env, stream) {
   const model = body.model || "catgirl-4o";
   const prompt = typeof body.prompt === "string" ? body.prompt : extractPrompt(body);
-  const text = prankContent(mode, prompt, env);
+  const text = prankContent(mode, extractLastUser(body) || prompt, env);
   const id = rid("cmpl");
   if (!stream) {
     return jres({
@@ -219,7 +249,8 @@ function openaiCompletion(body, mode, env, stream) {
 function anthropicMessages(body, mode, env, stream) {
   const model = body.model || "claude-nyaa-9";
   const prompt = extractPrompt(body);
-  const text = prankContent(mode, prompt, env);
+  const lastUser = extractLastUser(body);
+  const text = prankContent(mode, lastUser, env);
   const id = "msg_" + Math.random().toString(36).slice(2, 14);
 
   if (!stream) {
@@ -258,7 +289,8 @@ function anthropicMessages(body, mode, env, stream) {
 // Gemini: POST /v1beta/models/{model}:generateContent | :streamGenerateContent
 function geminiGenerate(body, mode, env, stream, model) {
   const prompt = extractPrompt(body);
-  const text = prankContent(mode, prompt, env);
+  const lastUser = extractLastUser(body);
+  const text = prankContent(mode, lastUser, env);
   const outModel = model || "prank-gemini-9.9";
 
   if (!stream) {
@@ -301,7 +333,8 @@ function geminiGenerate(body, mode, env, stream, model) {
 function ollamaChat(body, mode, env, stream, kind = "chat") {
   const model = body.model || "nyan-3.5-turbo";
   const prompt = extractPrompt(body);
-  const text = prankContent(mode, prompt, env);
+  const lastUser = extractLastUser(body);
+  const text = prankContent(mode, lastUser, env);
   const createdAt = new Date().toISOString();
 
   if (!stream) {

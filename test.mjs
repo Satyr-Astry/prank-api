@@ -159,8 +159,31 @@ const postJSON = (path, body) =>
     check("?text= 生效", got === "主人今天也要开心哦(=^･ω･^=)", `-> "${got}"`);
   }
 
-  // 14. 404
-  console.log("[14] 未知路径 404");
+  // 14. 回归：历史里的关键词不该污染最新一句的判断
+  console.log("[14] 回归测试：历史含'你好'，但最新一句是别的");
+  {
+    const body = { messages: [
+      { role: "user", content: "你好" },
+      { role: "assistant", content: "( ・ω・)ﾉ 你好呀~" },
+      { role: "user", content: "写个蛋" },
+    ] };
+    let hitEgg = 0, n = 12;
+    for (let i = 0; i < n; i++) {
+      const j = await (await postJSON("/v1/chat/completions", body)).json();
+      if (/你好呀/.test(j.choices[0].message.content)) hitEgg++;
+    }
+    check("最新一句不含关键词时不再误触发彩蛋", hitEgg === 0, `(${hitEgg}/${n} 次误触发)`);
+
+    const eggBody = { messages: [
+      { role: "user", content: "随便" },
+      { role: "user", content: "你好" },
+    ] };
+    const j2 = await (await postJSON("/v1/chat/completions", eggBody)).json();
+    check("最新一句含'你好'时仍正常触发", /你好呀/.test(j2.choices[0].message.content), `-> "${j2.choices[0].message.content}"`);
+  }
+
+  // 15. 404
+  console.log("[15] 未知路径 404");
   {
     const r = await fetch(`${BASE}/nope`);
     check("返回 404", r.status === 404);
