@@ -3,8 +3,8 @@
 > 一个**假装自己是 AI 大模型供应商**的多协议整蛊 API。
 > 你把客户端的 Base URL 指到这里，它就开始卖萌——返回颜文字、ASCII 画、Emoji 或图片，而不是任何真实文本。
 
-**🚀 在线 Demo：** <https://prank-api-0h8m6gts13v8.satyr-astry.deno.net/>
-把 Base URL 换成 `https://prank-api-0h8m6gts13v8.satyr-astry.deno.net/v1` 就能直接接进你的 AI 客户端。
+**🚀 在线 Demo：** <https://prank-api-d5rq6ytwz4ht.satyr-astry.deno.net/>
+把 Base URL 换成 `https://prank-api-d5rq6ytwz4ht.satyr-astry.deno.net/v1` 就能直接接进你的 AI 客户端。
 
 ![sample](docs/sample.svg)
 
